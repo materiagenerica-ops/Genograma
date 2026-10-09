@@ -3,79 +3,364 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Generador de Genogramas Clínicos Interactivo</title>
-    <!-- Tailwind CSS para el diseño -->
+    <title>Generador de Genogramas Clínicos - Firebase</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome para iconos -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Inter', sans-serif; }
-        .node-card {
-            transition: box-shadow 0.2s, border-color 0.2s;
-        }
-        .node-card:hover {
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        }
-        /* Custom scrollbar for panels */
-        ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #f1f5f9;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 3px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #94a3b8;
-        }
+        .node-card { transition: box-shadow 0.2s, border-color 0.2s; }
+        .node-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
     </style>
 </head>
 <body class="bg-slate-100 text-slate-800 h-screen flex flex-col overflow-hidden">
 
-    <!-- BARRA SUPERIOR / HEADER -->
+    <!-- HEADER -->
     <header class="bg-slate-900 text-white shadow-md px-6 py-3 flex items-center justify-between shrink-0 z-20">
         <div class="flex items-center space-x-3">
             <div class="bg-indigo-600 text-white p-2 rounded-lg shadow">
                 <i class="fa-solid fa-sitemap text-xl"></i>
             </div>
             <div>
-                <h1 class="text-lg font-bold tracking-tight">Genograma Pro+</h1>
-                <p class="text-xs text-slate-400">Sistema de Evaluación Familiar Multigeneracional (3+ Generaciones)</p>
+                <h1 class="text-lg font-bold tracking-tight">Genograma Pro+ (Firestore Cloud)</h1>
+                <p class="text-xs text-slate-400 flex items-center gap-1.5">
+                    <span id="dbStatus" class="inline-block w-2 h-2 rounded-full bg-amber-500"></span> Conectando a Firebase...
+                </p>
             </div>
         </div>
         <div class="flex items-center space-x-3">
-            <button onclick="cargarCasoEjemplo()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs px-3 py-2 rounded-lg font-medium transition flex items-center gap-1.5 shadow-sm">
-                <i class="fa-solid fa-folder-open text-indigo-400"></i> Cargar Caso Clínico Ejemplo
+            <button onclick="window.cargarCasoEjemplo()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs px-3 py-2 rounded-lg font-medium transition flex items-center gap-1.5 shadow-sm">
+                <i class="fa-solid fa-folder-open text-indigo-400"></i> Cargar Caso Ejemplo
             </button>
-            <button onclick="exportarJSON()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs px-3 py-2 rounded-lg font-medium transition flex items-center gap-1.5 shadow-sm">
+            <button onclick="window.exportarJSON()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs px-3 py-2 rounded-lg font-medium transition flex items-center gap-1.5 shadow-sm">
                 <i class="fa-solid fa-download text-emerald-400"></i> Exportar JSON
             </button>
-            <label class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs px-3 py-2 rounded-lg font-medium transition flex items-center gap-1.5 shadow-sm cursor-pointer">
-                <i class="fa-solid fa-upload text-amber-400"></i> Importar JSON
-                <input type="file" id="importFile" accept=".json" onchange="importarJSON(event)" class="hidden">
-            </label>
-            <button onclick="limpiarTodo()" class="bg-rose-900/40 hover:bg-rose-900/70 text-rose-200 border border-rose-800/60 text-xs px-3 py-2 rounded-lg font-medium transition flex items-center gap-1.5">
+            <button onclick="window.limpiarTodo()" class="bg-rose-900/40 hover:bg-rose-900/70 text-rose-200 border border-rose-800/60 text-xs px-3 py-2 rounded-lg font-medium transition flex items-center gap-1.5">
                 <i class="fa-solid fa-trash-can"></i> Limpiar Todo
             </button>
         </div>
     </header>
 
-    <!-- CUERPO PRINCIPAL (2 PANELES: IZQ = FORMULARIOS/DATOS, DER = LIENZO GRÁFICO) -->
+    <!-- CUERPO PRINCIPAL -->
     <div class="flex-1 flex overflow-hidden">
         
-        <!-- PANEL IZQUIERDO: GESTIÓN DE FAMILIARES Y VÍNCULOS -->
+        <!-- PANEL IZQUIERDO -->
         <aside class="w-full md:w-[460px] bg-white border-r border-slate-200 flex flex-col shrink-0 z-10 shadow-lg">
-            <!-- PESTAÑAS DE NAVEGACIÓN LATERAL -->
             <div class="flex border-b border-slate-200 bg-slate-50">
-                <button onclick="cambiarTab('familiares')" id="tabBtn-familiares" class="flex-1 py-3 text-xs font-semibold text-indigo-600 border-b-2 border-indigo-600 bg-white transition flex items-center justify-center gap-1.5">
+                <button onclick="window.cambiarTab('familiares')" id="tabBtn-familiares" class="flex-1 py-3 text-xs font-semibold text-indigo-600 border-b-2 border-indigo-600 bg-white transition flex items-center justify-center gap-1.5">
                     <i class="fa-solid fa-users"></i> 1. Familiares (<span id="contadorMiembros">0</span>)
                 </button>
-                <button onclick="cambiarTab('relaciones')" id="tabBtn-relaciones" class="flex-1 py-3 text-xs font-semibold text-slate-500 hover:text-slate-700 transition flex items-center justify-center gap-1.5">
-                    <i class="fa-solid fa-heart-pulse"></i> 2. Tipo Vincular (<span id="contadorVinculos">0</span>)
+                <button onclick="window.cambiarTab('relaciones')" id="tabBtn-relaciones" class="flex-1 py-3 text-xs font-semibold text-slate-500 hover:text-slate-700 transition flex items-center justify-center gap-1.5">
+                    <i class="fa-solid fa-heart-pulse"></i> 2. Vínculos (<span id="contadorVinculos">0</span>)
                 </button>
-                <button onclick="cambiarTab('leyenda')" id="tabBtn-leyenda" class="flex-1 py-3 text-xs font-semibold text-slate-500 hover:text-slate-700 transition flex items-center justify-center gap-1.5">
+                <button onclick="window.cambiarTab('leyenda')" id="tabBtn-leyenda" class="flex-1 py-3 text-xs font-semibold text-slate-500 hover:text-slate-700 transition flex items-center justify-center gap-1.5">
+                    <i class="fa-solid fa-book-open"></i> Símbolos
+                </button>
+            </div>
+
+            <div class="flex-1 overflow-y-auto p-4 space-y-4">
+                
+                <!-- SECCIÓN 1: FAMILIARES -->
+                <div id="tabContent-familiares" class="space-y-4">
+                    <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 shadow-sm">
+                        <h2 id="formTitulo" class="text-sm font-bold text-slate-800 mb-3 flex items-center gap-2">
+                            <i class="fa-solid fa-user-plus text-indigo-600"></i> Agregar Familiar
+                        </h2>
+                        <form id="formFamiliar" onsubmit="window.guardarFamiliar(event)" class="space-y-3">
+                            <input type="hidden" id="familiarId">
+                            
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-600 mb-1">Nombre y Apellido *</label>
+                                    <input type="text" id="nombre" required placeholder="Ej. Juan Pérez" class="w-full text-xs border border-slate-300 rounded-lg px-2.5 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-600 mb-1">Generación *</label>
+                                    <select id="generacion" class="w-full text-xs border border-slate-300 rounded-lg px-2.5 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white">
+                                        <option value="1">Generación I (Abuelos)</option>
+                                        <option value="2" selected>Generación II (Padres)</option>
+                                        <option value="3">Generación III (Hijos/Ego)</option>
+                                        <option value="4">Generación IV (Nietos)</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-600 mb-1">Sexo *</label>
+                                    <select id="sexo" class="w-full text-xs border border-slate-300 rounded-lg px-2.5 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white">
+                                        <option value="M">Hombre (Cuadrado)</option>
+                                        <option value="F">Mujer (Círculo)</option>
+                                        <option value="O">Otro / Desconocido</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-600 mb-1">Estado Vital *</label>
+                                    <select id="estadoVital" onchange="window.toggleFechaDefuncion()" class="w-full text-xs border border-slate-300 rounded-lg px-2.5 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white">
+                                        <option value="vivo" selected>Vivo/a</option>
+                                        <option value="fallecido">Fallecido/a</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-600 mb-1">Año Nac. / Edad</label>
+                                    <input type="text" id="edadNac" placeholder="Ej. 1965" class="w-full text-xs border border-slate-300 rounded-lg px-2.5 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white">
+                                </div>
+                                <div id="divFechaDefuncion" class="hidden">
+                                    <label class="block text-xs font-semibold text-slate-600 mb-1">Año Defunción</label>
+                                    <input type="text" id="anioDefuncion" placeholder="Ej. 2020" class="w-full text-xs border border-slate-300 rounded-lg px-2.5 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white">
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 mb-1">Notas Clínicas / Síntomas</label>
+                                <textarea id="notas" rows="2" placeholder="Ej. Hipertensión, depresión..." class="w-full text-xs border border-slate-300 rounded-lg px-2.5 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white"></textarea>
+                            </div>
+
+                            <div class="flex items-center space-x-2 pt-1">
+                                <button type="submit" id="btnGuardarFamiliar" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold py-2 px-4 rounded-lg transition shadow-sm">
+                                    Guardar Familiar
+                                </button>
+                                <button type="button" id="btnCancelarEdicion" onclick="window.resetFormFamiliar()" class="hidden bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-semibold py-2 px-3 rounded-lg transition">
+                                    Cancelar
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="space-y-2">
+                        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500">Listado de Miembros</h3>
+                        <div id="listaFamiliares" class="space-y-2"></div>
+                    </div>
+                </div>
+
+                <!-- SECCIÓN 2: VÍNCULOS -->
+                <div id="tabContent-relaciones" class="hidden space-y-4">
+                    <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 shadow-sm">
+                        <h2 class="text-sm font-bold text-slate-800 mb-3 flex items-center gap-2">
+                            <i class="fa-solid fa-link text-indigo-600"></i> Definir Vínculo / Relación
+                        </h2>
+                        <form id="formRelacion" onsubmit="window.guardarRelacion(event)" class="space-y-3">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 mb-1">Familiar 1 (Origen) *</label>
+                                <select id="relOrigen" required class="w-full text-xs border border-slate-300 rounded-lg px-2.5 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white">
+                                    <option value="">Seleccione familiar...</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 mb-1">Familiar 2 (Destino) *</label>
+                                <select id="relDestino" required class="w-full text-xs border border-slate-300 rounded-lg px-2.5 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white">
+                                    <option value="">Seleccione familiar...</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-600 mb-1">Tipo Vincular *</label>
+                                <select id="relTipo" class="w-full text-xs border border-slate-300 rounded-lg px-2.5 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white font-medium">
+                                    <option value="pareja">Pareja / Matrimonio</option>
+                                    <option value="matrimonio_conflicto">Pareja con Conflicto</option>
+                                    <option value="separados">Separados (//)</option>
+                                    <option value="divorciados">Divorciados (// //)</option>
+                                    <option value="unidos_libre">Unión Libre (Punteado)</option>
+                                    <option value="padre_hijo">Padre/Madre a Hijo</option>
+                                    <option value="muy_unidos">Muy Unidos / Fusionados</option>
+                                    <option value="quiebre">Quiebre / Cutoff (|)</option>
+                                    <option value="conflictivos">Conflictivos</option>
+                                </select>
+                            </div>
+
+                            <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold py-2 px-4 rounded-lg transition shadow-sm">
+                                Registrar Vínculo
+                            </button>
+                        </form>
+                    </div>
+
+                    <div class="space-y-2">
+                        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500">Vínculos Establecidos</h3>
+                        <div id="listaRelaciones" class="space-y-2"></div>
+                    </div>
+                </div>
+
+                <!-- SECCIÓN 3: SÍMBOLOS -->
+                <div id="tabContent-leyenda" class="hidden space-y-4">
+                    <div class="bg-indigo-50 border border-indigo-100 rounded-xl p-4 text-xs text-indigo-900 space-y-2">
+                        <p class="font-bold flex items-center gap-1.5"><i class="fa-solid fa-circle-info"></i> Base de Datos Activa</p>
+                        <p>Los datos se sincronizan automáticamente en tiempo real con Firebase Firestore.</p>
+                    </div>
+                </div>
+
+            </div>
+        </aside>
+
+        <!-- PANEL DERECHO: LIENZO -->
+        <main class="flex-1 bg-slate-200 relative flex flex-col overflow-hidden">
+            <div class="bg-white/90 backdrop-blur border-b border-slate-300 px-4 py-2 flex items-center justify-between shrink-0 shadow-sm z-10">
+                <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Lienzo Gráfico Interactivo</span>
+                <div class="flex items-center space-x-2">
+                    <button onclick="window.zoomIn()" class="bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 px-2.5 py-1 rounded-lg text-xs font-medium shadow-sm transition">+</button>
+                    <button onclick="window.zoomOut()" class="bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 px-2.5 py-1 rounded-lg text-xs font-medium shadow-sm transition">-</button>
+                    <button onclick="window.resetZoom()" class="bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 px-2.5 py-1 rounded-lg text-xs font-medium shadow-sm transition">Restablecer</button>
+                </div>
+            </div>
+
+            <div id="lienzoContenedor" class="flex-1 relative overflow-auto cursor-grab active:cursor-grabbing select-none" onmousedown="window.iniciarPan(event)" onmousemove="window.moverPan(event)" onmouseup="window.terminarPan()" onmouseleave="window.terminarPan()">
+                <div id="lienzoInterior" class="absolute w-[2400px] h-[1600px] transition-transform duration-75 origin-top-left">
+                    <svg id="svgConexiones" class="absolute inset-0 w-full h-full pointer-events-none z-0"></svg>
+                    <div id="capaGeneraciones" class="absolute inset-0 p-12 flex flex-col justify-around pointer-events-none z-10"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- FIREBASE & LOGICA APP -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBEzPvkGmNQtqQ0iYyfjikXA-N3D8MWKUU",
+            authDomain: "genograma-253d3.firebaseapp.com",
+            projectId: "genograma-253d3",
+            storageBucket: "genograma-253d3.firebasestorage.app",
+            messagingSenderId: "494537128407",
+            appId: "1:494537128407:web:2667bc8a0ed16263cd3392",
+            measurementId: "G-NWCWQXJSCK"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const docRef = doc(db, "genogramas", "caso_principal");
+
+        let estado = {
+            familiares: [],
+            relaciones: [],
+            posiciones: {}
+        };
+
+        let zoomLevel = 1;
+        let isPanning = false;
+        let startX, startY;
+
+        onSnapshot(docRef, (docSnap) => {
+            const statusDot = document.getElementById('dbStatus');
+            if (statusDot) {
+                statusDot.className = "inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse";
+                statusDot.nextSibling.nodeValue = " Conectado a Firestore";
+            }
+
+            if (docSnap.exists()) {
+                const data = docSnap.data();
+                estado.familiares = data.familiares || [];
+                estado.relaciones = data.relaciones || [];
+                estado.posiciones = data.posiciones || {};
+                renderizarTodo();
+            } else {
+                cargarCasoEjemplo();
+            }
+        }, (error) => {
+            console.error("Error al conectar a Firestore:", error);
+            const statusDot = document.getElementById('dbStatus');
+            if (statusDot) {
+                statusDot.className = "inline-block w-2 h-2 rounded-full bg-rose-500";
+                statusDot.nextSibling.nodeValue = " Error de conexión BD";
+            }
+        });
+
+        async function guardarEnFirestore() {
+            try {
+                await setDoc(docRef, estado);
+            } catch (e) {
+                console.error("Error al guardar en Firebase:", e);
+            }
+        }
+
+        window.cambiarTab = function(tab) {
+            ['familiares', 'relaciones', 'leyenda'].forEach(t => {
+                const elContent = document.getElementById(`tabContent-${t}`);
+                const elBtn = document.getElementById(`tabBtn-${t}`);
+                if (elContent) elContent.classList.add('hidden');
+                if (elBtn) elBtn.className = "flex-1 py-3 text-xs font-semibold text-slate-500 hover:text-slate-700 transition flex items-center justify-center gap-1.5 border-b-2 border-transparent bg-slate-50";
+            });
+            const activeContent = document.getElementById(`tabContent-${tab}`);
+            const activeBtn = document.getElementById(`tabBtn-${tab}`);
+            if (activeContent) activeContent.classList.remove('hidden');
+            if (activeBtn) activeBtn.className = "flex-1 py-3 text-xs font-semibold text-indigo-600 border-b-2 border-indigo-600 bg-white transition flex items-center justify-center gap-1.5";
+        }
+
+        window.toggleFechaDefuncion = function() {
+            const estadoVital = document.getElementById('estadoVital').value;
+            const divDef = document.getElementById('divFechaDefuncion');
+            if (estadoVital === 'fallecido') {
+                divDef.classList.remove('hidden');
+            } else {
+                divDef.classList.add('hidden');
+            }
+        }
+
+        window.guardarFamiliar = async function(e) {
+            e.preventDefault();
+            const idInput = document.getElementById('familiarId').value;
+            const id = idInput ? idInput : 'fam_' + Date.now();
+            const nombre = document.getElementById('nombre').value;
+            const generacion = parseInt(document.getElementById('generacion').value);
+            const sexo = document.getElementById('sexo').value;
+            const estadoVital = document.getElementById('estadoVital').value;
+            const edadNac = document.getElementById('edadNac').value;
+            const anioDefuncion = document.getElementById('anioDefuncion').value;
+            const notas = document.getElementById('notas').value;
+
+            const index = estado.familiares.findIndex(f => f.id === id);
+            const nuevoMiembro = { id, nombre, generacion, sexo, estadoVital, edadNac, anioDefuncion, notas };
+
+            if (index >= 0) {
+                estado.familiares[index] = nuevoMiembro;
+            } else {
+                estado.familiares.push(nuevoMiembro);
+                const countGen = estado.familiares.filter(f => f.generacion === generacion).length;
+                estado.posiciones[id] = { x: 100 + (countGen - 1) * 220, y: (generacion - 1) * 320 + 80 };
+            }
+
+            await guardarEnFirestore();
+            window.resetFormFamiliar();
+            renderizarTodo();
+        }
+
+        window.editarFamiliar = function(id) {
+            const f = estado.familiares.find(item => item.id === id);
+            if (!f) return;
+
+            document.getElementById('familiarId').value = f.id;
+            document.getElementById('nombre').value = f.nombre;
+            document.getElementById('generacion').value = f.generacion;
+            document.getElementById('sexo').value = f.sexo;
+            document.getElementById('estadoVital').value = f.estadoVital;
+            window.toggleFechaDefuncion();
+            document.getElementById('edadNac').value = f.edadNac || '';
+            document.getElementById('anioDefuncion').value = f.anioDefuncion || '';
+            document.getElementById('notas').value = f.notas || '';
+
+            document.getElementById('formTitulo').innerHTML = `<i class="fa-solid fa-user-pen text-indigo-600"></i> Editar Familiar`;
+            document.getElementById('btnGuardarFamiliar').innerText = 'Actualizar Familiar';
+            document.getElementById('btnCancelarEdicion').classList.remove('hidden');
+            window.cambiarTab('familiares');
+        }
+
+        window.resetFormFamiliar = function() {
+            document.getElementById('formFamiliar').reset();
+            document.getElementById('familiarId').value = '';
+            document.getElementById('divFechaDefuncion').classList.add('hidden');
+            document.getElementById('formTitulo').innerHTML = `<i class="fa-solid fa-user-plus text-indigo-600"></i> Agregar Familiar`;
+            document.getElementById('btnGuardarFamiliar').innerText = 'Guardar Familiar';
+            document.getElementById('btnCancelarEdicion').classList.add('hidden');
+        }
+
+        window.eliminarFamiliar = async function(id) {
+            if (!confirm('¿Está seguro de eliminar este familiar?')) return;
+            estado.familiares = estado.familiares.filter(f => f.id !== id);
+            estado.relaciones = estado.relaciones.filter(r => r
