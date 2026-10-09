@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Clínica de la Convergencia - Acceso al Genograma</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,700;1,400&display=swap" rel="stylesheet">
     <style>
@@ -28,7 +28,6 @@
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 30px rgba(99, 102, 241, 0.15);
         }
 
-        /* CONFIGURACIÓN EXCLUSIVA PARA IMPRESIÓN Y PDF */
         @media print {
             body, html { background: white !important; height: auto !important; overflow: visible !important; }
             header, aside, .no-print { display: none !important; }
@@ -45,7 +44,7 @@
     <!-- PANTALLA DE LOGIN -->
     <div id="loginScreen" class="login-door-bg flex items-center justify-center p-4">
         <div class="login-card w-full max-w-md rounded-2xl p-8 flex flex-col items-center relative overflow-hidden">
-            <div class="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-yellow-600 via-indigo-600 to-yellow-600"></div>
+            <div class="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-amber-600 via-indigo-600 to-amber-600"></div>
 
             <div class="mb-5 text-center mt-2">
                 <div class="w-24 h-24 mx-auto rounded-full border-2 border-indigo-200 shadow-md overflow-hidden bg-slate-100 flex items-center justify-center mb-3">
@@ -55,7 +54,7 @@
                 <p class="text-xs text-indigo-700 font-semibold uppercase tracking-wider mt-1">Acceso al Pasado Vivo • Genograma Sistémico</p>
             </div>
 
-            <div class="text-center mb-6 border-y border-slate-200 py-2.5 w-full bg-slate-50">
+            <div class="text-center mb-6 border-y border-slate-200 py-2.5 w-full bg-slate-50/50 rounded-lg">
                 <p class="text-xs font-bold text-slate-700">Dr. y Mgter. Rubén M. Pereyra</p>
                 <p class="text-[10px] text-slate-500 italic">Sistema Clínico Multigeneracional</p>
             </div>
@@ -65,7 +64,7 @@
                     <label class="block text-xs font-semibold text-slate-600 mb-1">Usuario Autorizado</label>
                     <div class="relative">
                         <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400"><i class="fa-solid fa-user text-xs"></i></span>
-                        <input type="text" id="loginUser" required autocomplete="username" placeholder="Ingrese usuario" class="w-full text-xs border border-slate-300 rounded-lg pl-9 pr-3 py-2.5 focus:outline-none bg-slate-50">
+                        <input type="text" id="loginUser" required autocomplete="username" placeholder="Ingrese usuario" class="w-full text-xs border border-slate-300 rounded-lg pl-9 pr-3 py-2.5 focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-slate-50">
                     </div>
                 </div>
 
@@ -73,4 +72,714 @@
                     <label class="block text-xs font-semibold text-slate-600 mb-1">Contraseña de Acceso</label>
                     <div class="relative">
                         <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400"><i class="fa-solid fa-lock text-xs"></i></span>
-                        <input type="password" id
+                        <input type="password" id="loginPass" required autocomplete="current-password" placeholder="••••••••" class="w-full text-xs border border-slate-300 rounded-lg pl-9 pr-3 py-2.5 focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-slate-50">
+                    </div>
+                </div>
+
+                <div id="loginError" class="hidden text-rose-600 text-[11px] text-center font-medium bg-rose-50 p-2 rounded-lg border border-rose-200">
+                    Credenciales incorrectas. Verifique usuario y contraseña.
+                </div>
+
+                <button type="submit" class="w-full bg-slate-900 hover:bg-indigo-900 text-white text-xs font-bold py-3 px-4 rounded-lg transition shadow-lg flex items-center justify-center gap-2 tracking-wide uppercase cursor-pointer">
+                    <span>Ingresar al Sistema</span> <i class="fa-solid fa-arrow-right-to-bracket text-amber-400"></i>
+                </button>
+            </form>
+
+            <div class="mt-6 text-[10px] text-slate-400 text-center">
+                Acceso restringido a profesionales de la institución.
+            </div>
+        </div>
+    </div>
+
+    <!-- APLICACIÓN PRINCIPAL -->
+    <div id="mainAppContainer" class="hidden flex-1 flex flex-col h-screen overflow-hidden">
+        <header class="bg-slate-900 text-white shadow-md px-6 py-3 flex items-center justify-between shrink-0 z-20">
+            <div class="flex items-center space-x-3">
+                <div class="bg-indigo-600 text-white p-2 rounded-lg shadow">
+                    <i class="fa-solid fa-sitemap text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold tracking-tight">Clínica de la Convergencia — Genograma Pro+</h1>
+                    <p class="text-xs text-slate-400 flex items-center gap-1.5">
+                        <span id="dbStatus" class="inline-block w-2 h-2 rounded-full bg-amber-500"></span> Conectando a Firebase...
+                    </p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-2.5">
+                <button id="btnPdf" class="bg-indigo-700 hover:bg-indigo-600 text-white border border-indigo-600 text-xs px-3 py-2 rounded-lg font-medium transition flex items-center gap-1.5 shadow-sm cursor-pointer">
+                    <i class="fa-solid fa-file-pdf"></i> Guardar PDF
+                </button>
+                <button id="btnImprimir" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs px-3 py-2 rounded-lg font-medium transition flex items-center gap-1.5 shadow-sm cursor-pointer">
+                    <i class="fa-solid fa-print"></i> Imprimir
+                </button>
+                <button id="btnCasoEjemplo" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs px-3 py-2 rounded-lg font-medium transition flex items-center gap-1.5 shadow-sm">
+                    <i class="fa-solid fa-folder-open text-indigo-400"></i> Cargar Caso Ejemplo
+                </button>
+                <button id="btnExportar" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs px-3 py-2 rounded-lg font-medium transition flex items-center gap-1.5 shadow-sm">
+                    <i class="fa-solid fa-download text-emerald-400"></i> Exportar JSON
+                </button>
+                <button id="btnCerrarSesion" class="bg-amber-900/40 hover:bg-amber-900/70 text-amber-200 border border-amber-800/60 text-xs px-3 py-2 rounded-lg font-medium transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-right-from-bracket"></i> Salir
+                </button>
+            </div>
+        </header>
+
+        <div class="flex-1 flex overflow-hidden">
+            <aside class="w-full md:w-[460px] bg-white border-r border-slate-200 flex flex-col shrink-0 z-10 shadow-lg">
+                <div class="flex border-b border-slate-200 bg-slate-50">
+                    <button id="tabBtn-familiares" class="flex-1 py-3 text-xs font-semibold text-indigo-600 border-b-2 border-indigo-600 bg-white transition flex items-center justify-center gap-1.5">
+                        <i class="fa-solid fa-users"></i> 1. Familiares (<span id="contadorMiembros">0</span>)
+                    </button>
+                    <button id="tabBtn-relaciones" class="flex-1 py-3 text-xs font-semibold text-slate-500 hover:text-slate-700 transition flex items-center justify-center gap-1.5">
+                        <i class="fa-solid fa-heart-pulse"></i> 2. Vínculos (<span id="contadorVinculos">0</span>)
+                    </button>
+                    <button id="tabBtn-leyenda" class="flex-1 py-3 text-xs font-semibold text-slate-500 hover:text-slate-700 transition flex items-center justify-center gap-1.5">
+                        <i class="fa-solid fa-book-open"></i> Símbolos
+                    </button>
+                </div>
+
+                <div class="flex-1 overflow-y-auto p-4 space-y-4">
+                    <div id="tabContent-familiares" class="space-y-4">
+                        <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 shadow-sm">
+                            <h2 id="formTitulo" class="text-sm font-bold text-slate-800 mb-3 flex items-center gap-2">
+                                <i class="fa-solid fa-user-plus text-indigo-600"></i> Agregar Familiar
+                            </h2>
+                            <form id="formFamiliar" class="space-y-3">
+                                <input type="hidden" id="familiarId">
+                                <div class="grid grid-cols-2 gap-3">
+                                    <div>
+                                        <label class="block text-xs font-semibold text-slate-600 mb-1">Nombre y Apellido *</label>
+                                        <input type="text" id="nombre" required placeholder="Ej. Juan Pérez" class="w-full text-xs border border-slate-300 rounded-lg px-2.5 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-semibold text-slate-600 mb-1">Generación *</label>
+                                        <select id="generacion" class="w-full text-xs border border-slate-300 rounded-lg px-2.5 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white">
+                                            <option value="1">Generación I (Abuelos)</option>
+                                            <option value="2" selected>Generación II (Padres)</option>
+                                            <option value="3">Generación III (Hijos/Ego)</option>
+                                            <option value="4">Generación IV (Nietos)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-2 gap-3">
+                                    <div>
+                                        <label class="block text-xs font-semibold text-slate-600 mb-1">Sexo *</label>
+                                        <select id="sexo" class="w-full text-xs border border-slate-300 rounded-lg px-2.5 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white">
+                                            <option value="M">Hombre (Cuadrado)</option>
+                                            <option value="F">Mujer (Círculo)</option>
+                                            <option value="O">Otro / Desconocido</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-semibold text-slate-600 mb-1">Estado Vital *</label>
+                                        <select id="estadoVital" class="w-full text-xs border border-slate-300 rounded-lg px-2.5 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white">
+                                            <option value="vivo" selected>Vivo/a</option>
+                                            <option value="fallecido">Fallecido/a</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-2 gap-3">
+                                    <div>
+                                        <label class="block text-xs font-semibold text-slate-600 mb-1">Año Nac. / Edad</label>
+                                        <input type="text" id="edadNac" placeholder="Ej. 1965" class="w-full text-xs border border-slate-300 rounded-lg px-2.5 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white">
+                                    </div>
+                                    <div id="divFechaDefuncion" class="hidden">
+                                        <label class="block text-xs font-semibold text-slate-600 mb-1">Año Defunción</label>
+                                        <input type="text" id="anioDefuncion" placeholder="Ej. 2020" class="w-full text-xs border border-slate-300 rounded-lg px-2.5 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-600 mb-1">Notas Clínicas / Síntomas</label>
+                                    <textarea id="notas" rows="2" placeholder="Ej. Hipertensión, depresión..." class="w-full text-xs border border-slate-300 rounded-lg px-2.5 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white"></textarea>
+                                </div>
+                                <div class="flex items-center space-x-2 pt-1">
+                                    <button type="submit" id="btnGuardarFamiliar" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold py-2 px-4 rounded-lg transition shadow-sm">
+                                        Guardar Familiar
+                                    </button>
+                                    <button type="button" id="btnCancelarEdicion" class="hidden bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-semibold py-2 px-3 rounded-lg transition">
+                                        Cancelar
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="space-y-2">
+                            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500">Listado de Miembros</h3>
+                            <div id="listaFamiliares" class="space-y-2"></div>
+                        </div>
+                    </div>
+
+                    <div id="tabContent-relaciones" class="hidden space-y-4">
+                        <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 shadow-sm">
+                            <h2 class="text-sm font-bold text-slate-800 mb-3 flex items-center gap-2">
+                                <i class="fa-solid fa-link text-indigo-600"></i> Definir Vínculo / Relación
+                            </h2>
+                            <form id="formRelacion" class="space-y-3">
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-600 mb-1">Familiar 1 (Origen) *</label>
+                                    <select id="relOrigen" required class="w-full text-xs border border-slate-300 rounded-lg px-2.5 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white">
+                                        <option value="">Seleccione familiar...</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-600 mb-1">Familiar 2 (Destino) *</label>
+                                    <select id="relDestino" required class="w-full text-xs border border-slate-300 rounded-lg px-2.5 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white">
+                                        <option value="">Seleccione familiar...</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-600 mb-1">Tipo Vincular *</label>
+                                    <select id="relTipo" class="w-full text-xs border border-slate-300 rounded-lg px-2.5 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white font-medium">
+                                        <option value="pareja">Pareja / Matrimonio</option>
+                                        <option value="matrimonio_conflicto">Pareja con Conflicto</option>
+                                        <option value="separados">Separados (//)</option>
+                                        <option value="divorciados">Divorciados (// //)</option>
+                                        <option value="unidos_libre">Unión Libre (Punteado)</option>
+                                        <option value="padre_hijo">Padre/Madre a Hijo</option>
+                                        <option value="muy_unidos">Muy Unidos / Fusionados</option>
+                                        <option value="quiebre">Quiebre / Cutoff (|)</option>
+                                        <option value="conflictivos">Conflictivos</option>
+                                    </select>
+                                </div>
+                                <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold py-2 px-4 rounded-lg transition shadow-sm">
+                                    Registrar Vínculo
+                                </button>
+                            </form>
+                        </div>
+                        <div class="space-y-2">
+                            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500">Vínculos Establecidos</h3>
+                            <div id="listaRelaciones" class="space-y-2"></div>
+                        </div>
+                    </div>
+
+                    <div id="tabContent-leyenda" class="hidden space-y-4">
+                        <div class="bg-indigo-50 border border-indigo-100 rounded-xl p-4 text-xs text-indigo-900 space-y-2">
+                            <p class="font-bold flex items-center gap-1.5"><i class="fa-solid fa-circle-info"></i> Clínica de la Convergencia</p>
+                            <p>Sincronización activa con Firebase Firestore.</p>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <main class="flex-1 bg-slate-200 relative flex flex-col overflow-hidden">
+                <div class="bg-white/90 backdrop-blur border-b border-slate-300 px-4 py-2 flex items-center justify-between shrink-0 shadow-sm z-10 no-print">
+                    <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Lienzo Gráfico Interactivo</span>
+                    <div class="flex items-center space-x-2">
+                        <button id="btnZoomIn" class="bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 px-2.5 py-1 rounded-lg text-xs font-medium shadow-sm transition">+</button>
+                        <button id="btnZoomOut" class="bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 px-2.5 py-1 rounded-lg text-xs font-medium shadow-sm transition">-</button>
+                        <button id="btnResetZoom" class="bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 px-2.5 py-1 rounded-lg text-xs font-medium shadow-sm transition">Restablecer</button>
+                    </div>
+                </div>
+                <div id="lienzoContenedor" class="flex-1 relative overflow-auto cursor-grab active:cursor-grabbing select-none">
+                    <div id="lienzoInterior" class="absolute w-[2400px] h-[1600px] transition-transform duration-75 origin-top-left">
+                        <svg id="svgConexiones" class="absolute inset-0 w-full h-full pointer-events-none z-0"></svg>
+                        <div id="capaGeneraciones" class="absolute inset-0 p-12 flex flex-col justify-around pointer-events-none z-10"></div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- SCRIPT DE AUTENTICACIÓN Y FIREBASE -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBEzPvkGmNQtqQ0iYyfjikXA-N3D8MWKUU",
+            authDomain: "genograma-253d3.firebaseapp.com",
+            projectId: "genograma-253d3",
+            storageBucket: "genograma-253d3.firebasestorage.app",
+            messagingSenderId: "494537128407",
+            appId: "1:494537128407:web:2667bc8a0ed16263cd3392",
+            measurementId: "G-NWCWQXJSCK"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const docRef = doc(db, "genogramas", "caso_principal");
+
+        let estado = {
+            familiares: [],
+            relaciones: [],
+            posiciones: {}
+        };
+
+        let zoomLevel = 1;
+        let isPanning = false;
+        let startX, startY;
+        let unsubscribeSnapshot = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('formLogin').addEventListener('submit', (e) => {
+                e.preventDefault();
+                const usuario = document.getElementById('loginUser').value.trim().toUpperCase();
+                const clave = document.getElementById('loginPass').value.trim();
+                const errorDiv = document.getElementById('loginError');
+
+                const usuariosValidos = {
+                    "PALEOS": "1234",
+                    "DRPEREYRA": "235689"
+                };
+
+                if (usuariosValidos[usuario] && usuariosValidos[usuario] === clave) {
+                    errorDiv.classList.add('hidden');
+                    document.getElementById('loginScreen').classList.add('hidden');
+                    document.getElementById('mainAppContainer').classList.remove('hidden');
+                    iniciarSincronizacionFirestore();
+                } else {
+                    errorDiv.classList.remove('hidden');
+                }
+            });
+
+            document.getElementById('btnCerrarSesion').addEventListener('click', () => {
+                if (unsubscribeSnapshot) unsubscribeSnapshot();
+                document.getElementById('mainAppContainer').classList.add('hidden');
+                document.getElementById('loginScreen').classList.remove('hidden');
+                document.getElementById('formLogin').reset();
+            });
+
+            document.getElementById('btnImprimir').addEventListener('click', () => {
+                window.print();
+            });
+
+            document.getElementById('btnPdf').addEventListener('click', () => {
+                window.print();
+            });
+
+            document.getElementById('tabBtn-familiares').addEventListener('click', () => cambiarTab('familiares'));
+            document.getElementById('tabBtn-relaciones').addEventListener('click', () => cambiarTab('relaciones'));
+            document.getElementById('tabBtn-leyenda').addEventListener('click', () => cambiarTab('leyenda'));
+            
+            document.getElementById('estadoVital').addEventListener('change', toggleFechaDefuncion);
+            document.getElementById('formFamiliar').addEventListener('submit', guardarFamiliar);
+            document.getElementById('formRelacion').addEventListener('submit', guardarRelacion);
+            document.getElementById('btnCancelarEdicion').addEventListener('click', resetFormFamiliar);
+
+            document.getElementById('btnCasoEjemplo').addEventListener('click', cargarCasoEjemplo);
+            document.getElementById('btnExportar').addEventListener('click', exportarJSON);
+
+            document.getElementById('btnZoomIn').addEventListener('click', () => { zoomLevel = Math.min(zoomLevel + 0.15, 1.8); aplicarZoom(); });
+            document.getElementById('btnZoomOut').addEventListener('click', () => { zoomLevel = Math.max(zoomLevel - 0.15, 0.5); aplicarZoom(); });
+            document.getElementById('btnResetZoom').addEventListener('click', () => { zoomLevel = 1; aplicarZoom(); });
+
+            const contenedor = document.getElementById('lienzoContenedor');
+            contenedor.addEventListener('mousedown', (e) => {
+                if (e.target.closest('.node-card') || e.target.tagName === 'BUTTON' || e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
+                isPanning = true;
+                startX = e.clientX - contenedor.scrollLeft;
+                startY = e.clientY - contenedor.scrollTop;
+            });
+            contenedor.addEventListener('mousemove', (e) => {
+                if (!isPanning) return;
+                contenedor.scrollLeft = e.clientX - startX;
+                contenedor.scrollTop = e.clientY - startY;
+            });
+            contenedor.addEventListener('mouseup', () => isPanning = false);
+            contenedor.addEventListener('mouseleave', () => isPanning = false);
+        });
+
+        function iniciarSincronizacionFirestore() {
+            unsubscribeSnapshot = onSnapshot(docRef, (docSnap) => {
+                const statusDot = document.getElementById('dbStatus');
+                if (statusDot) {
+                    statusDot.className = "inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse";
+                    statusDot.nextSibling.nodeValue = " Conectado a Firestore";
+                }
+
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    estado.familiares = data.familiares || [];
+                    estado.relaciones = data.relaciones || [];
+                    estado.posiciones = data.posiciones || {};
+                    renderizarTodo();
+                } else {
+                    cargarCasoEjemplo();
+                }
+            }, (error) => {
+                console.error("Error al conectar a Firestore:", error);
+                const statusDot = document.getElementById('dbStatus');
+                if (statusDot) {
+                    statusDot.className = "inline-block w-2 h-2 rounded-full bg-rose-500";
+                    statusDot.nextSibling.nodeValue = " Error de conexión BD";
+                }
+            });
+        }
+
+        async function guardarEnFirestore() {
+            try {
+                await setDoc(docRef, estado);
+            } catch (e) {
+                console.error("Error al guardar en Firebase:", e);
+            }
+        }
+
+        function cambiarTab(tab) {
+            ['familiares', 'relaciones', 'leyenda'].forEach(t => {
+                const elContent = document.getElementById(`tabContent-${t}`);
+                const elBtn = document.getElementById(`tabBtn-${t}`);
+                if (elContent) elContent.classList.add('hidden');
+                if (elBtn) elBtn.className = "flex-1 py-3 text-xs font-semibold text-slate-500 hover:text-slate-700 transition flex items-center justify-center gap-1.5 border-b-2 border-transparent bg-slate-50";
+            });
+            const activeContent = document.getElementById(`tabContent-${tab}`);
+            const activeBtn = document.getElementById(`tabBtn-${tab}`);
+            if (activeContent) activeContent.classList.remove('hidden');
+            if (activeBtn) activeBtn.className = "flex-1 py-3 text-xs font-semibold text-indigo-600 border-b-2 border-indigo-600 bg-white transition flex items-center justify-center gap-1.5";
+        }
+
+        function toggleFechaDefuncion() {
+            const estadoVital = document.getElementById('estadoVital').value;
+            const divDef = document.getElementById('divFechaDefuncion');
+            if (estadoVital === 'fallecido') {
+                divDef.classList.remove('hidden');
+            } else {
+                divDef.classList.add('hidden');
+            }
+        }
+
+        async function guardarFamiliar(e) {
+            e.preventDefault();
+            const idInput = document.getElementById('familiarId').value;
+            const id = idInput ? idInput : 'fam_' + Date.now();
+            const nombre = document.getElementById('nombre').value;
+            const generacion = parseInt(document.getElementById('generacion').value);
+            const sexo = document.getElementById('sexo').value;
+            const estadoVital = document.getElementById('estadoVital').value;
+            const edadNac = document.getElementById('edadNac').value;
+            const anioDefuncion = document.getElementById('anioDefuncion').value;
+            const notas = document.getElementById('notas').value;
+
+            const index = estado.familiares.findIndex(f => f.id === id);
+            const nuevoMiembro = { id, nombre, generacion, sexo, estadoVital, edadNac, anioDefuncion, notas };
+
+            if (index >= 0) {
+                estado.familiares[index] = nuevoMiembro;
+            } else {
+                estado.familiares.push(nuevoMiembro);
+                const countGen = estado.familiares.filter(f => f.generacion === generacion).length;
+                estado.posiciones[id] = { x: 100 + (countGen - 1) * 220, y: (generacion - 1) * 320 + 80 };
+            }
+
+            await guardarEnFirestore();
+            resetFormFamiliar();
+            renderizarTodo();
+        }
+
+        window.editarFamiliar = function(id) {
+            const f = estado.familiares.find(item => item.id === id);
+            if (!f) return;
+
+            document.getElementById('familiarId').value = f.id;
+            document.getElementById('nombre').value = f.nombre;
+            document.getElementById('generacion').value = f.generacion;
+            document.getElementById('sexo').value = f.sexo;
+            document.getElementById('estadoVital').value = f.estadoVital;
+            toggleFechaDefuncion();
+            document.getElementById('edadNac').value = f.edadNac || '';
+            document.getElementById('anioDefuncion').value = f.anioDefuncion || '';
+            document.getElementById('notas').value = f.notas || '';
+
+            document.getElementById('formTitulo').innerHTML = `<i class="fa-solid fa-user-pen text-indigo-600"></i> Editar Familiar`;
+            document.getElementById('btnGuardarFamiliar').innerText = 'Actualizar Familiar';
+            document.getElementById('btnCancelarEdicion').classList.remove('hidden');
+            cambiarTab('familiares');
+        }
+
+        function resetFormFamiliar() {
+            document.getElementById('formFamiliar').reset();
+            document.getElementById('familiarId').value = '';
+            document.getElementById('divFechaDefuncion').classList.add('hidden');
+            document.getElementById('formTitulo').innerHTML = `<i class="fa-solid fa-user-plus text-indigo-600"></i> Agregar Familiar`;
+            document.getElementById('btnGuardarFamiliar').innerText = 'Guardar Familiar';
+            document.getElementById('btnCancelarEdicion').classList.add('hidden');
+        }
+
+        window.eliminarFamiliar = async function(id) {
+            if (!confirm('¿Está seguro de eliminar este familiar?')) return;
+            estado.familiares = estado.familiares.filter(f => f.id !== id);
+            estado.relaciones = estado.relaciones.filter(r => r.origen !== id && r.destino !== id);
+            delete estado.posiciones[id];
+            await guardarEnFirestore();
+            renderizarTodo();
+        }
+
+        async function guardarRelacion(e) {
+            e.preventDefault();
+            const origen = document.getElementById('relOrigen').value;
+            const destino = document.getElementById('relDestino').value;
+            const tipo = document.getElementById('relTipo').value;
+
+            if (origen === destino) {
+                alert('El origen y destino no pueden ser la misma persona.');
+                return;
+            }
+
+            const existe = estado.relaciones.find(r => (r.origen === origen && r.destino === destino) || (r.origen === destino && r.destino === origen));
+            if (existe) {
+                existe.tipo = tipo;
+            } else {
+                estado.relaciones.push({ id: 'rel_' + Date.now(), origen, destino, tipo });
+            }
+
+            await guardarEnFirestore();
+            document.getElementById('formRelacion').reset();
+            renderizarTodo();
+        }
+
+        window.eliminarRelacion = async function(id) {
+            estado.relaciones = estado.relaciones.filter(r => r.id !== id);
+            await guardarEnFirestore();
+            renderizarTodo();
+        }
+
+        function renderizarTodo() {
+            actualizarSelectsRelaciones();
+            renderizarListasPaneles();
+            renderizarLienzoGrafico();
+        }
+
+        function actualizarSelectsRelaciones() {
+            const selectOrigen = document.getElementById('relOrigen');
+            const selectDestino = document.getElementById('relDestino');
+            if (!selectOrigen || !selectDestino) return;
+            
+            let optionsHTML = '<option value="">Seleccione familiar...</option>';
+            estado.familiares.forEach(f => {
+                optionsHTML += `<option value="${f.id}">${f.nombre} (Gen. ${f.generacion})</option>`;
+            });
+
+            selectOrigen.innerHTML = optionsHTML;
+            selectDestino.innerHTML = optionsHTML;
+
+            document.getElementById('contadorMiembros').innerText = estado.familiares.length;
+            document.getElementById('contadorVinculos').innerText = estado.relaciones.length;
+        }
+
+        function renderizarListasPaneles() {
+            const listaFam = document.getElementById('listaFamiliares');
+            if (estado.familiares.length === 0) {
+                listaFam.innerHTML = `<p class="text-xs text-slate-400 italic py-2 text-center">No hay familiares cargados.</p>`;
+            } else {
+                listaFam.innerHTML = estado.familiares.map(f => `
+                    <div class="bg-white border border-slate-200 rounded-lg p-2.5 flex items-center justify-between shadow-sm">
+                        <div class="flex items-center space-x-2.5">
+                            <div class="w-7 h-7 rounded bg-indigo-50 border border-indigo-200 flex items-center justify-center font-bold text-xs text-indigo-700">
+                                ${f.sexo === 'M' ? '□' : f.sexo === 'F' ? '○' : '◇'}
+                            </div>
+                            <div>
+                                <h4 class="text-xs font-bold text-slate-800">${f.nombre}</h4>
+                                <p class="text-[10px] text-slate-500">Gen. ${f.generacion} • ${f.estadoVital === 'fallecido' ? '✝ Fallecido' : 'Vivo'}</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-1">
+                            <button type="button" onclick="window.editarFamiliar('${f.id}')" class="p-1.5 text-slate-400 hover:text-indigo-600 rounded transition"><i class="fa-solid fa-pen text-xs"></i></button>
+                            <button type="button" onclick="window.eliminarFamiliar('${f.id}')" class="p-1.5 text-slate-400 hover:text-rose-600 rounded transition"><i class="fa-solid fa-trash text-xs"></i></button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            const listaRel = document.getElementById('listaRelaciones');
+            if (estado.relaciones.length === 0) {
+                listaRel.innerHTML = `<p class="text-xs text-slate-400 italic py-2 text-center">No hay vínculos registrados.</p>`;
+            } else {
+                listaRel.innerHTML = estado.relaciones.map(r => {
+                    const o = estado.familiares.find(item => item.id === r.origen);
+                    const d = estado.familiares.find(item => item.id === r.destino);
+                    if (!o || !d) return '';
+                    return `
+                        <div class="bg-white border border-slate-200 rounded-lg p-2.5 flex items-center justify-between shadow-sm">
+                            <div class="text-xs">
+                                <span class="font-bold text-slate-700">${o.nombre}</span> 
+                                <span class="text-indigo-600 font-semibold px-1">(${r.tipo})</span> 
+                                <span class="font-bold text-slate-700">${d.nombre}</span>
+                            </div>
+                            <button type="button" onclick="window.eliminarRelacion('${r.id}')" class="p-1 text-slate-400 hover:text-rose-600 rounded transition"><i class="fa-solid fa-xmark text-xs"></i></button>
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+
+        function renderizarLienzoGrafico() {
+            const capaGen = document.getElementById('capaGeneraciones');
+            const svg = document.getElementById('svgConexiones');
+            if (!capaGen || !svg) return;
+
+            const generacionesMap = { 1: [], 2: [], 3: [], 4: [] };
+            estado.familiares.forEach(f => {
+                if (generacionesMap[f.generacion]) {
+                    generacionesMap[f.generacion].push(f);
+                }
+            });
+
+            let htmlGeneraciones = '';
+            for (let g = 1; g <= 4; g++) {
+                const miembrosGen = generacionesMap[g];
+                if (miembrosGen.length === 0) continue;
+
+                htmlGeneraciones += `
+                    <div class="flex flex-col space-y-2 mb-12">
+                        <div class="flex items-center space-x-2">
+                            <span class="bg-slate-900 text-white text-[10px] font-bold px-2 py-0.5 rounded shadow">Generación ${g}</span>
+                            <div class="flex-1 h-[1px] bg-slate-300"></div>
+                        </div>
+                        <div class="flex flex-wrap gap-8 items-center min-h-[140px] px-4 relative">
+                `;
+
+                miembrosGen.forEach(f => {
+                    if (!estado.posiciones[f.id]) {
+                        const index = miembrosGen.indexOf(f);
+                        estado.posiciones[f.id] = { x: 80 + index * 240, y: (g - 1) * 320 + 60 };
+                    }
+                    const pos = estado.posiciones[f.id];
+
+                    let figuraHTML = '';
+                    let claseFigura = "w-16 h-16 bg-white border-2 border-slate-800 flex items-center justify-center shadow-md relative transition-all";
+                    
+                    if (f.sexo === 'M') {
+                        figuraHTML = `<div class="${claseFigura} rounded-none"></div>`;
+                    } else if (f.sexo === 'F') {
+                        figuraHTML = `<div class="${claseFigura} rounded-full"></div>`;
+                    } else {
+                        figuraHTML = `<div class="${claseFigura} rotate-45 w-14 h-14 mx-auto my-1"></div>`;
+                    }
+
+                    let cruzHTML = f.estadoVital === 'fallecido' ? `
+                        <div class="absolute inset-0 flex items-center justify-center pointer-events-none text-rose-600 font-bold text-2xl">✕</div>
+                    ` : '';
+
+                    htmlGeneraciones += `
+                        <div class="node-card absolute pointer-events-auto bg-white/95 backdrop-blur border border-slate-300 rounded-xl p-3 shadow-lg flex flex-col items-center cursor-move select-none"
+                             style="left: ${pos.x}px; top: ${pos.y}px; width: 180px;"
+                             onmousedown="window.iniciarArrastreNodo(event, '${f.id}')">
+                            <div class="relative mb-2">
+                                ${figuraHTML}
+                                ${cruzHTML}
+                            </div>
+                            <h3 class="text-xs font-bold text-slate-800 text-center truncate w-full">${f.nombre}</h3>
+                            <p class="text-[10px] text-slate-500 text-center">${f.edadNac ? f.edadNac : 'S/D'}</p>
+                            ${f.notas ? `<p class="text-[9px] text-indigo-700 bg-indigo-50 border border-indigo-100 rounded px-1.5 py-0.5 mt-1.5 text-center truncate w-full">${f.notas}</p>` : ''}
+                        </div>
+                    `;
+                });
+
+                htmlGeneraciones += `</div></div>`;
+            }
+
+            capaGen.innerHTML = htmlGeneraciones;
+
+            let svgHTML = '';
+            estado.relaciones.forEach(r => {
+                const pos1 = estado.posiciones[r.origen];
+                const pos2 = estado.posiciones[r.destino];
+                if (!pos1 || !pos2) return;
+
+                const x1 = pos1.x + 90;
+                const y1 = pos1.y + 70;
+                const x2 = pos2.x + 90;
+                const y2 = pos2.y + 70;
+
+                let strokeColor = "#334155";
+                let strokeWidth = "2";
+                let strokeDasharray = "none";
+
+                if (r.tipo === 'pareja') strokeWidth = "3";
+                if (r.tipo === 'unidos_libre') strokeDasharray = "6,6";
+                if (r.tipo === 'muy_unidos') { strokeColor = "#059669"; strokeWidth = "4"; }
+                if (r.tipo === 'quiebre') strokeColor = "#e11d48";
+
+                svgHTML += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${strokeColor}" stroke-width="${strokeWidth}" stroke-dasharray="${strokeDasharray}" />`;
+
+                const midX = (x1 + x2) / 2;
+                const midY = (y1 + y2) / 2;
+
+                if (r.tipo === 'separados') svgHTML += `<text x="${midX}" y="${midY}" fill="#475569" font-size="14" font-weight="bold" text-anchor="middle">//</text>`;
+                if (r.tipo === 'divorciados') svgHTML += `<text x="${midX}" y="${midY}" fill="#e11d48" font-size="14" font-weight="bold" text-anchor="middle">// //</text>`;
+                if (r.tipo === 'quiebre') svgHTML += `<text x="${midX}" y="${midY}" fill="#e11d48" font-size="16" font-weight="bold" text-anchor="middle">|</text>`;
+            });
+
+            svg.innerHTML = svgHTML;
+        }
+
+        let nodoArrastrandoId = null;
+        let desfaseX = 0;
+        let desfaseY = 0;
+
+        window.iniciarArrastreNodo = function(e, id) {
+            if (e.target.tagName === 'BUTTON' || e.target.closest('button')) return;
+            nodoArrastrandoId = id;
+            const pos = estado.posiciones[id];
+            const contenedor = document.getElementById('lienzoContenedor');
+            const rect = contenedor.getBoundingClientRect();
+            
+            desfaseX = (e.clientX - rect.left) / zoomLevel - pos.x;
+            desfaseY = (e.clientY - rect.top) / zoomLevel - pos.y;
+
+            document.addEventListener('mousemove', moverNodo);
+            document.addEventListener('mouseup', terminarArrastreNodo);
+            e.stopPropagation();
+        }
+
+        function moverNodo(e) {
+            if (!nodoArrastrandoId) return;
+            const contenedor = document.getElementById('lienzoContenedor');
+            const rect = contenedor.getBoundingClientRect();
+
+            const nuevoX = (e.clientX - rect.left) / zoomLevel - desfaseX;
+            const nuevoY = (e.clientY - rect.top) / zoomLevel - desfaseY;
+
+            estado.posiciones[nodoArrastrandoId] = { x: Math.max(10, nuevoX), y: Math.max(10, nuevoY) };
+            renderizarLienzoGrafico();
+        }
+
+        async function terminarArrastreNodo() {
+            if (nodoArrastrandoId) {
+                nodoArrastrandoId = null;
+                await guardarEnFirestore();
+            }
+            document.removeEventListener('mousemove', moverNodo);
+            document.removeEventListener('mouseup', terminarArrastreNodo);
+        }
+
+        function aplicarZoom() {
+            document.getElementById('lienzoInterior').style.transform = `scale(${zoomLevel})`;
+        }
+
+        async function cargarCasoEjemplo() {
+            estado = {
+                familiares: [
+                    { id: 'abuelo_p', nombre: 'Francisco Pérez', generacion: 1, sexo: 'M', estadoVital: 'fallecido', edadNac: '1930', notas: 'Cardiopatía' },
+                    { id: 'abuela_p', nombre: 'Carmen Gómez', generacion: 1, sexo: 'F', estadoVital: 'fallecido', edadNac: '1935', notas: 'Diabetes' },
+                    { id: 'padre', nombre: 'Roberto Pérez', generacion: 2, sexo: 'M', estadoVital: 'vivo', edadNac: '1962', notas: 'Hipertensión' },
+                    { id: 'madre', nombre: 'Elena Ruiz', generacion: 2, sexo: 'F', estadoVital: 'vivo', edadNac: '1965', notas: 'Ansiedad' },
+                    { id: 'ego', nombre: 'Lucas Pérez (Paciente)', generacion: 3, sexo: 'M', estadoVital: 'vivo', edadNac: '1995', notas: 'Depresión' }
+                ],
+                relaciones: [
+                    { id: 'rel_1', origen: 'abuelo_p', destino: 'abuela_p', tipo: 'pareja' },
+                    { id: 'rel_2', origen: 'padre', destino: 'madre', tipo: 'matrimonio_conflicto' },
+                    { id: 'rel_3', origen: 'padre', destino: 'ego', tipo: 'padre_hijo' }
+                ],
+                posiciones: {
+                    'abuelo_p': { x: 300, y: 60 },
+                    'abuela_p': { x: 600, y: 60 },
+                    'padre': { x: 250, y: 380 },
+                    'madre': { x: 550, y: 380 },
+                    'ego': { x: 350, y: 700 }
+                }
+            };
+            await guardarEnFirestore();
+            renderizarTodo();
+        }
+
+        function exportarJSON() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(estado, null, 2));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", `genograma_firestore.json`);
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+        }
+    </script>
+</body>
+</html>
