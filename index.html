@@ -3,219 +3,274 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Generador de Genogramas Clínicos - Firebase</title>
+    <title>Clínica de la Convergencia - Acceso al Genograma</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,700;1,400&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Inter', sans-serif; }
+        .font-serif-title { font-family: 'Playfair Display', serif; }
         .node-card { transition: box-shadow 0.2s, border-color 0.2s; }
         .node-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: #f1f5f9; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+        
+        /* Estilo puerta de acceso al pasado vivo / clínica sistémica */
+        .login-door-bg {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            position: relative;
+        }
+        .login-card {
+            background: rgba(255, 255, 255, 0.98);
+            border: 1px solid rgba(203, 213, 225, 0.6);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
+        }
     </style>
 </head>
 <body class="bg-slate-100 text-slate-800 h-screen flex flex-col overflow-hidden">
 
-    <!-- HEADER -->
-    <header class="bg-slate-900 text-white shadow-md px-6 py-3 flex items-center justify-between shrink-0 z-20">
-        <div class="flex items-center space-x-3">
-            <div class="bg-indigo-600 text-white p-2 rounded-lg shadow">
-                <i class="fa-solid fa-sitemap text-xl"></i>
+    <!-- PANTALLA DE LOGIN (PUERTA DE ACCESO) -->
+    <div id="loginScreen" class="absolute inset-0 z-50 login-door-bg flex items-center justify-center p-4">
+        <div class="login-card w-full max-w-md rounded-2xl p-8 flex flex-col items-center relative overflow-hidden">
+            <!-- Detalle decorativo superior tipo dintel -->
+            <div class="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-amber-600 via-indigo-600 to-amber-600"></div>
+
+            <!-- Logotipo Centrado -->
+            <div class="mb-5 text-center">
+                <div class="w-24 h-24 mx-auto rounded-full border-2 border-indigo-200 shadow-md overflow-hidden bg-slate-100 flex items-center justify-center mb-3">
+                    <img id="logotipoImg" src="logotipo.jpg" alt="Logotipo Clínica de la Convergencia" class="w-full h-full object-cover" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1532938911079-1b06ac7ceec7?auto=format&fit=crop&w=200&q=80';">
+                </div>
+                <h1 class="font-serif-title text-2xl font-bold text-slate-900 tracking-wide">Clínica de la Convergencia</h1>
+                <p class="text-xs text-indigo-700 font-semibold uppercase tracking-wider mt-1">Acceso al Pasado Vivo • Genograma Sistémico</p>
             </div>
-            <div>
-                <h1 class="text-lg font-bold tracking-tight">Genograma Pro+ (Firestore Cloud)</h1>
-                <p class="text-xs text-slate-400 flex items-center gap-1.5">
-                    <span id="dbStatus" class="inline-block w-2 h-2 rounded-full bg-amber-500"></span> Conectando a Firebase...
-                </p>
+
+            <!-- Presentación del Profesional -->
+            <div class="text-center mb-6 border-y border-slate-200 py-2.5 w-full">
+                <p class="text-xs font-bold text-slate-700">Dr. y Mgter. Rubén M. Pereyra</p>
+                <p class="text-[10px] text-slate-500 italic">Sistema Clínico Multigeneracional</p>
+            </div>
+
+            <!-- Formulario de Ingreso -->
+            <form id="formLogin" class="w-full space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Usuario Autorizado</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400"><i class="fa-solid fa-user text-xs"></i></span>
+                        <input type="text" id="loginUser" required placeholder="Ingrese usuario" class="w-full text-xs border border-slate-300 rounded-lg pl-9 pr-3 py-2.5 focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-slate-50">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Contraseña de Acceso</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400"><i class="fa-solid fa-lock text-xs"></i></span>
+                        <input type="password" id="loginPass" required placeholder="••••••••" class="w-full text-xs border border-slate-300 rounded-lg pl-9 pr-3 py-2.5 focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-slate-50">
+                    </div>
+                </div>
+
+                <div id="loginError" class="hidden text-rose-600 text-[11px] text-center font-medium bg-rose-50 p-2 rounded-lg border border-rose-200">
+                    Credenciales incorrectas. Verifique usuario y contraseña.
+                </div>
+
+                <button type="submit" class="w-full bg-slate-900 hover:bg-indigo-900 text-white text-xs font-bold py-3 px-4 rounded-lg transition shadow-lg flex items-center justify-center gap-2 tracking-wide uppercase">
+                    <span>Ingresar al Sistema</span> <i class="fa-solid fa-arrow-right-to-bracket text-amber-400"></i>
+                </button>
+            </form>
+
+            <div class="mt-6 text-[10px] text-slate-400 text-center">
+                Acceso restringido a profesionales de la institución.
             </div>
         </div>
-        <div class="flex items-center space-x-3">
-            <button id="btnCasoEjemplo" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs px-3 py-2 rounded-lg font-medium transition flex items-center gap-1.5 shadow-sm">
-                <i class="fa-solid fa-folder-open text-indigo-400"></i> Cargar Caso Ejemplo
-            </button>
-            <button id="btnExportar" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs px-3 py-2 rounded-lg font-medium transition flex items-center gap-1.5 shadow-sm">
-                <i class="fa-solid fa-download text-emerald-400"></i> Exportar JSON
-            </button>
-            <button id="btnLimpiar" class="bg-rose-900/40 hover:bg-rose-900/70 text-rose-200 border border-rose-800/60 text-xs px-3 py-2 rounded-lg font-medium transition flex items-center gap-1.5">
-                <i class="fa-solid fa-trash-can"></i> Limpiar Todo
-            </button>
+    </div>
+
+    <!-- APLICACIÓN PRINCIPAL (OCULTA HASTA LOGUEARSE) -->
+    <div id="mainAppContainer" class="hidden flex-1 flex flex-col h-screen overflow-hidden">
+        <!-- HEADER -->
+        <header class="bg-slate-900 text-white shadow-md px-6 py-3 flex items-center justify-between shrink-0 z-20">
+            <div class="flex items-center space-x-3">
+                <div class="bg-indigo-600 text-white p-2 rounded-lg shadow">
+                    <i class="fa-solid fa-sitemap text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold tracking-tight">Clínica de la Convergencia — Genograma Pro+</h1>
+                    <p class="text-xs text-slate-400 flex items-center gap-1.5">
+                        <span id="dbStatus" class="inline-block w-2 h-2 rounded-full bg-amber-500"></span> Conectando a Firebase...
+                    </p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-3">
+                <button id="btnCasoEjemplo" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs px-3 py-2 rounded-lg font-medium transition flex items-center gap-1.5 shadow-sm">
+                    <i class="fa-solid fa-folder-open text-indigo-400"></i> Cargar Caso Ejemplo
+                </button>
+                <button id="btnExportar" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs px-3 py-2 rounded-lg font-medium transition flex items-center gap-1.5 shadow-sm">
+                    <i class="fa-solid fa-download text-emerald-400"></i> Exportar JSON
+                </button>
+                <button id="btnCerrarSesion" class="bg-amber-900/40 hover:bg-amber-900/70 text-amber-200 border border-amber-800/60 text-xs px-3 py-2 rounded-lg font-medium transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-right-from-bracket"></i> Salir
+                </button>
+            </div>
+        </header>
+
+        <!-- CUERPO PRINCIPAL -->
+        <div class="flex-1 flex overflow-hidden">
+            <!-- PANEL IZQUIERDO -->
+            <aside class="w-full md:w-[460px] bg-white border-r border-slate-200 flex flex-col shrink-0 z-10 shadow-lg">
+                <div class="flex border-b border-slate-200 bg-slate-50">
+                    <button id="tabBtn-familiares" class="flex-1 py-3 text-xs font-semibold text-indigo-600 border-b-2 border-indigo-600 bg-white transition flex items-center justify-center gap-1.5">
+                        <i class="fa-solid fa-users"></i> 1. Familiares (<span id="contadorMiembros">0</span>)
+                    </button>
+                    <button id="tabBtn-relaciones" class="flex-1 py-3 text-xs font-semibold text-slate-500 hover:text-slate-700 transition flex items-center justify-center gap-1.5">
+                        <i class="fa-solid fa-heart-pulse"></i> 2. Vínculos (<span id="contadorVinculos">0</span>)
+                    </button>
+                    <button id="tabBtn-leyenda" class="flex-1 py-3 text-xs font-semibold text-slate-500 hover:text-slate-700 transition flex items-center justify-center gap-1.5">
+                        <i class="fa-solid fa-book-open"></i> Símbolos
+                    </button>
+                </div>
+
+                <div class="flex-1 overflow-y-auto p-4 space-y-4">
+                    <!-- SECCIÓN 1: FAMILIARES -->
+                    <div id="tabContent-familiares" class="space-y-4">
+                        <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 shadow-sm">
+                            <h2 id="formTitulo" class="text-sm font-bold text-slate-800 mb-3 flex items-center gap-2">
+                                <i class="fa-solid fa-user-plus text-indigo-600"></i> Agregar Familiar
+                            </h2>
+                            <form id="formFamiliar" class="space-y-3">
+                                <input type="hidden" id="familiarId">
+                                <div class="grid grid-cols-2 gap-3">
+                                    <div>
+                                        <label class="block text-xs font-semibold text-slate-600 mb-1">Nombre y Apellido *</label>
+                                        <input type="text" id="nombre" required placeholder="Ej. Juan Pérez" class="w-full text-xs border border-slate-300 rounded-lg px-2.5 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-semibold text-slate-600 mb-1">Generación *</label>
+                                        <select id="generacion" class="w-full text-xs border border-slate-300 rounded-lg px-2.5 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white">
+                                            <option value="1">Generación I (Abuelos)</option>
+                                            <option value="2" selected>Generación II (Padres)</option>
+                                            <option value="3">Generación III (Hijos/Ego)</option>
+                                            <option value="4">Generación IV (Nietos)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-2 gap-3">
+                                    <div>
+                                        <label class="block text-xs font-semibold text-slate-600 mb-1">Sexo *</label>
+                                        <select id="sexo" class="w-full text-xs border border-slate-300 rounded-lg px-2.5 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white">
+                                            <option value="M">Hombre (Cuadrado)</option>
+                                            <option value="F">Mujer (Círculo)</option>
+                                            <option value="O">Otro / Desconocido</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-semibold text-slate-600 mb-1">Estado Vital *</label>
+                                        <select id="estadoVital" class="w-full text-xs border border-slate-300 rounded-lg px-2.5 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white">
+                                            <option value="vivo" selected>Vivo/a</option>
+                                            <option value="fallecido">Fallecido/a</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-2 gap-3">
+                                    <div>
+                                        <label class="block text-xs font-semibold text-slate-600 mb-1">Año Nac. / Edad</label>
+                                        <input type="text" id="edadNac" placeholder="Ej. 1965" class="w-full text-xs border border-slate-300 rounded-lg px-2.5 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white">
+                                    </div>
+                                    <div id="divFechaDefuncion" class="hidden">
+                                        <label class="block text-xs font-semibold text-slate-600 mb-1">Año Defunción</label>
+                                        <input type="text" id="anioDefuncion" placeholder="Ej. 2020" class="w-full text-xs border border-slate-300 rounded-lg px-2.5 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-600 mb-1">Notas Clínicas / Síntomas</label>
+                                    <textarea id="notas" rows="2" placeholder="Ej. Hipertensión, depresión..." class="w-full text-xs border border-slate-300 rounded-lg px-2.5 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white"></textarea>
+                                </div>
+                                <div class="flex items-center space-x-2 pt-1">
+                                    <button type="submit" id="btnGuardarFamiliar" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold py-2 px-4 rounded-lg transition shadow-sm">
+                                        Guardar Familiar
+                                    </button>
+                                    <button type="button" id="btnCancelarEdicion" class="hidden bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-semibold py-2 px-3 rounded-lg transition">
+                                        Cancelar
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="space-y-2">
+                            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500">Listado de Miembros</h3>
+                            <div id="listaFamiliares" class="space-y-2"></div>
+                        </div>
+                    </div>
+
+                    <!-- SECCIÓN 2: VÍNCULOS -->
+                    <div id="tabContent-relaciones" class="hidden space-y-4">
+                        <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 shadow-sm">
+                            <h2 class="text-sm font-bold text-slate-800 mb-3 flex items-center gap-2">
+                                <i class="fa-solid fa-link text-indigo-600"></i> Definir Vínculo / Relación
+                            </h2>
+                            <form id="formRelacion" class="space-y-3">
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-600 mb-1">Familiar 1 (Origen) *</label>
+                                    <select id="relOrigen" required class="w-full text-xs border border-slate-300 rounded-lg px-2.5 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white">
+                                        <option value="">Seleccione familiar...</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-600 mb-1">Familiar 2 (Destino) *</label>
+                                    <select id="relDestino" required class="w-full text-xs border border-slate-300 rounded-lg px-2.5 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white">
+                                        <option value="">Seleccione familiar...</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-600 mb-1">Tipo Vincular *</label>
+                                    <select id="relTipo" class="w-full text-xs border border-slate-300 rounded-lg px-2.5 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white font-medium">
+                                        <option value="pareja">Pareja / Matrimonio</option>
+                                        <option value="matrimonio_conflicto">Pareja con Conflicto</option>
+                                        <option value="separados">Separados (//)</option>
+                                        <option value="divorciados">Divorciados (// //)</option>
+                                        <option value="unidos_libre">Unión Libre (Punteado)</option>
+                                        <option value="padre_hijo">Padre/Madre a Hijo</option>
+                                        <option value="muy_unidos">Muy Unidos / Fusionados</option>
+                                        <option value="quiebre">Quiebre / Cutoff (|)</option>
+                                        <option value="conflictivos">Conflictivos</option>
+                                    </select>
+                                </div>
+                                <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold py-2 px-4 rounded-lg transition shadow-sm">
+                                    Registrar Vínculo
+                                </button>
+                            </form>
+                        </div>
+                        <div class="space-y-2">
+                            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500">Vínculos Establecidos</h3>
+                            <div id="listaRelaciones" class="space-y-2"></div>
+                        </div>
+                    </div>
+
+                    <!-- SECCIÓN 3: SÍMBOLOS -->
+                    <div id="tabContent-leyenda" class="hidden space-y-4">
+                        <div class="bg-indigo-50 border border-indigo-100 rounded-xl p-4 text-xs text-indigo-900 space-y-2">
+                            <p class="font-bold flex items-center gap-1.5"><i class="fa-solid fa-circle-info"></i> Clínica de la Convergencia</p>
+                            <p>Sincronización activa con Firebase Firestore.</p>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- PANEL DERECHO: LIENZO -->
+            <main class="flex-1 bg-slate-200 relative flex flex-col overflow-hidden">
+                <div class="bg-white/90 backdrop-blur border-b border-slate-300 px-4 py-2 flex items-center justify-between shrink-0 shadow-sm z-10">
+                    <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Lienzo Gráfico Interactivo</span>
+                    <div class="flex items-center space-x-2">
+                        <button id="btnZoomIn" class="bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 px-2.5 py-1 rounded-lg text-xs font-medium shadow-sm transition">+</button>
+                        <button id="btnZoomOut" class="bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 px-2.5 py-1 rounded-lg text-xs font-medium shadow-sm transition">-</button>
+                        <button id="btnResetZoom" class="bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 px-2.5 py-1 rounded-lg text-xs font-medium shadow-sm transition">Restablecer</button>
+                    </div>
+                </div>
+                <div id="lienzoContenedor" class="flex-1 relative overflow-auto cursor-grab active:cursor-grabbing select-none">
+                    <div id="lienzoInterior" class="absolute w-[2400px] h-[1600px] transition-transform duration-75 origin-top-left">
+                        <svg id="svgConexiones" class="absolute inset-0 w-full h-full pointer-events-none z-0"></svg>
+                        <div id="capaGeneraciones" class="absolute inset-0 p-12 flex flex-col justify-around pointer-events-none z-10"></div>
+                    </div>
+                </div>
+            </main>
         </div>
-    </header>
-
-    <!-- CUERPO PRINCIPAL -->
-    <div class="flex-1 flex overflow-hidden">
-        
-        <!-- PANEL IZQUIERDO -->
-        <aside class="w-full md:w-[460px] bg-white border-r border-slate-200 flex flex-col shrink-0 z-10 shadow-lg">
-            <div class="flex border-b border-slate-200 bg-slate-50">
-                <button id="tabBtn-familiares" class="flex-1 py-3 text-xs font-semibold text-indigo-600 border-b-2 border-indigo-600 bg-white transition flex items-center justify-center gap-1.5">
-                    <i class="fa-solid fa-users"></i> 1. Familiares (<span id="contadorMiembros">0</span>)
-                </button>
-                <button id="tabBtn-relaciones" class="flex-1 py-3 text-xs font-semibold text-slate-500 hover:text-slate-700 transition flex items-center justify-center gap-1.5">
-                    <i class="fa-solid fa-heart-pulse"></i> 2. Vínculos (<span id="contadorVinculos">0</span>)
-                </button>
-                <button id="tabBtn-leyenda" class="flex-1 py-3 text-xs font-semibold text-slate-500 hover:text-slate-700 transition flex items-center justify-center gap-1.5">
-                    <i class="fa-solid fa-book-open"></i> Símbolos
-                </button>
-            </div>
-
-            <div class="flex-1 overflow-y-auto p-4 space-y-4">
-                
-                <!-- SECCIÓN 1: FAMILIARES -->
-                <div id="tabContent-familiares" class="space-y-4">
-                    <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 shadow-sm">
-                        <h2 id="formTitulo" class="text-sm font-bold text-slate-800 mb-3 flex items-center gap-2">
-                            <i class="fa-solid fa-user-plus text-indigo-600"></i> Agregar Familiar
-                        </h2>
-                        <form id="formFamiliar" class="space-y-3">
-                            <input type="hidden" id="familiarId">
-                            
-                            <div class="grid grid-cols-2 gap-3">
-                                <div>
-                                    <label class="block text-xs font-semibold text-slate-600 mb-1">Nombre y Apellido *</label>
-                                    <input type="text" id="nombre" required placeholder="Ej. Juan Pérez" class="w-full text-xs border border-slate-300 rounded-lg px-2.5 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white">
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-semibold text-slate-600 mb-1">Generación *</label>
-                                    <select id="generacion" class="w-full text-xs border border-slate-300 rounded-lg px-2.5 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white">
-                                        <option value="1">Generación I (Abuelos)</option>
-                                        <option value="2" selected>Generación II (Padres)</option>
-                                        <option value="3">Generación III (Hijos/Ego)</option>
-                                        <option value="4">Generación IV (Nietos)</option>
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div class="grid grid-cols-2 gap-3">
-                                <div>
-                                    <label class="block text-xs font-semibold text-slate-600 mb-1">Sexo *</label>
-                                    <select id="sexo" class="w-full text-xs border border-slate-300 rounded-lg px-2.5 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white">
-                                        <option value="M">Hombre (Cuadrado)</option>
-                                        <option value="F">Mujer (Círculo)</option>
-                                        <option value="O">Otro / Desconocido</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-semibold text-slate-600 mb-1">Estado Vital *</label>
-                                    <select id="estadoVital" class="w-full text-xs border border-slate-300 rounded-lg px-2.5 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white">
-                                        <option value="vivo" selected>Vivo/a</option>
-                                        <option value="fallecido">Fallecido/a</option>
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div class="grid grid-cols-2 gap-3">
-                                <div>
-                                    <label class="block text-xs font-semibold text-slate-600 mb-1">Año Nac. / Edad</label>
-                                    <input type="text" id="edadNac" placeholder="Ej. 1965" class="w-full text-xs border border-slate-300 rounded-lg px-2.5 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white">
-                                </div>
-                                <div id="divFechaDefuncion" class="hidden">
-                                    <label class="block text-xs font-semibold text-slate-600 mb-1">Año Defunción</label>
-                                    <input type="text" id="anioDefuncion" placeholder="Ej. 2020" class="w-full text-xs border border-slate-300 rounded-lg px-2.5 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white">
-                                </div>
-                            </div>
-
-                            <div>
-                                <label class="block text-xs font-semibold text-slate-600 mb-1">Notas Clínicas / Síntomas</label>
-                                <textarea id="notas" rows="2" placeholder="Ej. Hipertensión, depresión..." class="w-full text-xs border border-slate-300 rounded-lg px-2.5 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white"></textarea>
-                            </div>
-
-                            <div class="flex items-center space-x-2 pt-1">
-                                <button type="submit" id="btnGuardarFamiliar" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold py-2 px-4 rounded-lg transition shadow-sm">
-                                    Guardar Familiar
-                                </button>
-                                <button type="button" id="btnCancelarEdicion" class="hidden bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-semibold py-2 px-3 rounded-lg transition">
-                                    Cancelar
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-
-                    <div class="space-y-2">
-                        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500">Listado de Miembros</h3>
-                        <div id="listaFamiliares" class="space-y-2"></div>
-                    </div>
-                </div>
-
-                <!-- SECCIÓN 2: VÍNCULOS -->
-                <div id="tabContent-relaciones" class="hidden space-y-4">
-                    <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 shadow-sm">
-                        <h2 class="text-sm font-bold text-slate-800 mb-3 flex items-center gap-2">
-                            <i class="fa-solid fa-link text-indigo-600"></i> Definir Vínculo / Relación
-                        </h2>
-                        <form id="formRelacion" class="space-y-3">
-                            <div>
-                                <label class="block text-xs font-semibold text-slate-600 mb-1">Familiar 1 (Origen) *</label>
-                                <select id="relOrigen" required class="w-full text-xs border border-slate-300 rounded-lg px-2.5 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white">
-                                    <option value="">Seleccione familiar...</option>
-                                </select>
-                            </div>
-
-                            <div>
-                                <label class="block text-xs font-semibold text-slate-600 mb-1">Familiar 2 (Destino) *</label>
-                                <select id="relDestino" required class="w-full text-xs border border-slate-300 rounded-lg px-2.5 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white">
-                                    <option value="">Seleccione familiar...</option>
-                                </select>
-                            </div>
-
-                            <div>
-                                <label class="block text-xs font-semibold text-slate-600 mb-1">Tipo Vincular *</label>
-                                <select id="relTipo" class="w-full text-xs border border-slate-300 rounded-lg px-2.5 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white font-medium">
-                                    <option value="pareja">Pareja / Matrimonio</option>
-                                    <option value="matrimonio_conflicto">Pareja con Conflicto</option>
-                                    <option value="separados">Separados (//)</option>
-                                    <option value="divorciados">Divorciados (// //)</option>
-                                    <option value="unidos_libre">Unión Libre (Punteado)</option>
-                                    <option value="padre_hijo">Padre/Madre a Hijo</option>
-                                    <option value="muy_unidos">Muy Unidos / Fusionados</option>
-                                    <option value="quiebre">Quiebre / Cutoff (|)</option>
-                                    <option value="conflictivos">Conflictivos</option>
-                                </select>
-                            </div>
-
-                            <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold py-2 px-4 rounded-lg transition shadow-sm">
-                                Registrar Vínculo
-                            </button>
-                        </form>
-                    </div>
-
-                    <div class="space-y-2">
-                        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500">Vínculos Establecidos</h3>
-                        <div id="listaRelaciones" class="space-y-2"></div>
-                    </div>
-                </div>
-
-                <!-- SECCIÓN 3: SÍMBOLOS -->
-                <div id="tabContent-leyenda" class="hidden space-y-4">
-                    <div class="bg-indigo-50 border border-indigo-100 rounded-xl p-4 text-xs text-indigo-900 space-y-2">
-                        <p class="font-bold flex items-center gap-1.5"><i class="fa-solid fa-circle-info"></i> Base de Datos Activa</p>
-                        <p>Los datos se sincronizan automáticamente en tiempo real con Firebase Firestore.</p>
-                    </div>
-                </div>
-
-            </div>
-        </aside>
-
-        <!-- PANEL DERECHO: LIENZO -->
-        <main class="flex-1 bg-slate-200 relative flex flex-col overflow-hidden">
-            <div class="bg-white/90 backdrop-blur border-b border-slate-300 px-4 py-2 flex items-center justify-between shrink-0 shadow-sm z-10">
-                <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Lienzo Gráfico Interactivo</span>
-                <div class="flex items-center space-x-2">
-                    <button id="btnZoomIn" class="bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 px-2.5 py-1 rounded-lg text-xs font-medium shadow-sm transition">+</button>
-                    <button id="btnZoomOut" class="bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 px-2.5 py-1 rounded-lg text-xs font-medium shadow-sm transition">-</button>
-                    <button id="btnResetZoom" class="bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 px-2.5 py-1 rounded-lg text-xs font-medium shadow-sm transition">Restablecer</button>
-                </div>
-            </div>
-
-            <div id="lienzoContenedor" class="flex-1 relative overflow-auto cursor-grab active:cursor-grabbing select-none">
-                <div id="lienzoInterior" class="absolute w-[2400px] h-[1600px] transition-transform duration-75 origin-top-left">
-                    <svg id="svgConexiones" class="absolute inset-0 w-full h-full pointer-events-none z-0"></svg>
-                    <div id="capaGeneraciones" class="absolute inset-0 p-12 flex flex-col justify-around pointer-events-none z-10"></div>
-                </div>
-            </div>
-        </main>
     </div>
 
     <!-- FIREBASE & LOGICA APP -->
@@ -246,31 +301,63 @@
         let zoomLevel = 1;
         let isPanning = false;
         let startX, startY;
+        let unsubscribeSnapshot = null;
 
-        onSnapshot(docRef, (docSnap) => {
-            const statusDot = document.getElementById('dbStatus');
-            if (statusDot) {
-                statusDot.className = "inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse";
-                statusDot.nextSibling.nodeValue = " Conectado a Firestore";
-            }
+        // Autenticación por Credenciales Solicitadas
+        document.getElementById('formLogin').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const usuario = document.getElementById('loginUser').value.trim().toUpperCase();
+            const clave = document.getElementById('loginPass').value.trim();
+            const errorDiv = document.getElementById('loginError');
 
-            if (docSnap.exists()) {
-                const data = docSnap.data();
-                estado.familiares = data.familiares || [];
-                estado.relaciones = data.relaciones || [];
-                estado.posiciones = data.posiciones || {};
-                renderizarTodo();
+            const usuariosValidos = {
+                "PALEOS": "1234",
+                "DRPEREYRA": "235689"
+            };
+
+            if (usuariosValidos[usuario] && usuariosValidos[usuario] === clave) {
+                errorDiv.classList.add('hidden');
+                document.getElementById('loginScreen').classList.add('hidden');
+                document.getElementById('mainAppContainer').classList.remove('hidden');
+                iniciarSincronizacionFirestore();
             } else {
-                cargarCasoEjemplo();
-            }
-        }, (error) => {
-            console.error("Error al conectar a Firestore:", error);
-            const statusDot = document.getElementById('dbStatus');
-            if (statusDot) {
-                statusDot.className = "inline-block w-2 h-2 rounded-full bg-rose-500";
-                statusDot.nextSibling.nodeValue = " Error de conexión BD";
+                errorDiv.classList.remove('hidden');
             }
         });
+
+        document.getElementById('btnCerrarSesion').addEventListener('click', () => {
+            if (unsubscribeSnapshot) unsubscribeSnapshot();
+            document.getElementById('mainAppContainer').classList.add('hidden');
+            document.getElementById('loginScreen').classList.remove('hidden');
+            document.getElementById('formLogin').reset();
+        });
+
+        function iniciarSincronizacionFirestore() {
+            unsubscribeSnapshot = onSnapshot(docRef, (docSnap) => {
+                const statusDot = document.getElementById('dbStatus');
+                if (statusDot) {
+                    statusDot.className = "inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse";
+                    statusDot.nextSibling.nodeValue = " Conectado a Firestore";
+                }
+
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    estado.familiares = data.familiares || [];
+                    estado.relaciones = data.relaciones || [];
+                    estado.posiciones = data.posiciones || {};
+                    renderizarTodo();
+                } else {
+                    cargarCasoEjemplo();
+                }
+            }, (error) => {
+                console.error("Error al conectar a Firestore:", error);
+                const statusDot = document.getElementById('dbStatus');
+                if (statusDot) {
+                    statusDot.className = "inline-block w-2 h-2 rounded-full bg-rose-500";
+                    statusDot.nextSibling.nodeValue = " Error de conexión BD";
+                }
+            });
+        }
 
         async function guardarEnFirestore() {
             try {
@@ -608,7 +695,7 @@
             document.removeEventListener('mouseup', terminarArrastreNodo);
         }
 
-        // Asignación limpia de eventos de interfaz mediante JavaScript (sin conflictos con HTML)
+        // Listeners de la interfaz principal
         document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('tabBtn-familiares').addEventListener('click', () => cambiarTab('familiares'));
             document.getElementById('tabBtn-relaciones').addEventListener('click', () => cambiarTab('relaciones'));
@@ -616,79 +703,4 @@
             
             document.getElementById('estadoVital').addEventListener('change', toggleFechaDefuncion);
             document.getElementById('formFamiliar').addEventListener('submit', guardarFamiliar);
-            document.getElementById('formRelacion').addEventListener('submit', guardarRelacion);
-            document.getElementById('btnCancelarEdicion').addEventListener('click', resetFormFamiliar);
-
-            document.getElementById('btnCasoEjemplo').addEventListener('click', cargarCasoEjemplo);
-            document.getElementById('btnExportar').addEventListener('click', exportarJSON);
-            document.getElementById('btnLimpiar').addEventListener('click', limpiarTodo);
-
-            document.getElementById('btnZoomIn').addEventListener('click', () => { zoomLevel = Math.min(zoomLevel + 0.15, 1.8); aplicarZoom(); });
-            document.getElementById('btnZoomOut').addEventListener('click', () => { zoomLevel = Math.max(zoomLevel - 0.15, 0.5); aplicarZoom(); });
-            document.getElementById('btnResetZoom').addEventListener('click', () => { zoomLevel = 1; aplicarZoom(); });
-
-            const contenedor = document.getElementById('lienzoContenedor');
-            contenedor.addEventListener('mousedown', (e) => {
-                if (e.target.closest('.node-card') || e.target.tagName === 'BUTTON' || e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
-                isPanning = true;
-                startX = e.clientX - contenedor.scrollLeft;
-                startY = e.clientY - contenedor.scrollTop;
-            });
-            contenedor.addEventListener('mousemove', (e) => {
-                if (!isPanning) return;
-                contenedor.scrollLeft = e.clientX - startX;
-                contenedor.scrollTop = e.clientY - startY;
-            });
-            contenedor.addEventListener('mouseup', () => isPanning = false);
-            contenedor.addEventListener('mouseleave', () => isPanning = false);
-        });
-
-        function aplicarZoom() {
-            document.getElementById('lienzoInterior').style.transform = `scale(${zoomLevel})`;
-        }
-
-        async function cargarCasoEjemplo() {
-            estado = {
-                familiares: [
-                    { id: 'abuelo_p', nombre: 'Francisco Pérez', generacion: 1, sexo: 'M', estadoVital: 'fallecido', edadNac: '1930', notas: 'Cardiopatía' },
-                    { id: 'abuela_p', nombre: 'Carmen Gómez', generacion: 1, sexo: 'F', estadoVital: 'fallecido', edadNac: '1935', notas: 'Diabetes' },
-                    { id: 'padre', nombre: 'Roberto Pérez', generacion: 2, sexo: 'M', estadoVital: 'vivo', edadNac: '1962', notas: 'Hipertensión' },
-                    { id: 'madre', nombre: 'Elena Ruiz', generacion: 2, sexo: 'F', estadoVital: 'vivo', edadNac: '1965', notas: 'Ansiedad' },
-                    { id: 'ego', nombre: 'Lucas Pérez (Paciente)', generacion: 3, sexo: 'M', estadoVital: 'vivo', edadNac: '1995', notas: 'Depresión' }
-                ],
-                relaciones: [
-                    { id: 'rel_1', origen: 'abuelo_p', destino: 'abuela_p', tipo: 'pareja' },
-                    { id: 'rel_2', origen: 'padre', destino: 'madre', tipo: 'matrimonio_conflicto' },
-                    { id: 'rel_3', origen: 'padre', destino: 'ego', tipo: 'padre_hijo' }
-                ],
-                posiciones: {
-                    'abuelo_p': { x: 300, y: 60 },
-                    'abuela_p': { x: 600, y: 60 },
-                    'padre': { x: 250, y: 380 },
-                    'madre': { x: 550, y: 380 },
-                    'ego': { x: 350, y: 700 }
-                }
-            };
-            await guardarEnFirestore();
-            renderizarTodo();
-        }
-
-        async function limpiarTodo() {
-            if (!confirm('¿Desea borrar todo de la base de datos?')) return;
-            estado = { familiares: [], relaciones: [], posiciones: {} };
-            await guardarEnFirestore();
-            renderizarTodo();
-        }
-
-        function exportarJSON() {
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(estado, null, 2));
-            const downloadAnchor = document.createElement('a');
-            downloadAnchor.setAttribute("href", dataStr);
-            downloadAnchor.setAttribute("download", `genograma_firestore.json`);
-            document.body.appendChild(downloadAnchor);
-            downloadAnchor.click();
-            downloadAnchor.remove();
-        }
-    </script>
-</body>
-</html>
+            document.getElementById('formRelacion').addEventListener('submit',
