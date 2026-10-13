@@ -7,7 +7,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,700;1,400&display=swap" rel="stylesheet">
-    <!-- Chart.js para el gráfico de radar -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body { font-family: 'Inter', sans-serif; }
@@ -112,7 +111,7 @@
             </div>
         </header>
 
-        <div class="flex-1 flex overflow-hidden">
+        <main class="flex-1 flex overflow-hidden">
             <!-- PANEL IZQUIERDO: FORMULARIO DE CRITERIOS -->
             <div class="w-full md:w-1/2 bg-white border-r border-slate-200 flex flex-col shrink-0 overflow-y-auto p-6 space-y-6 shadow-md">
                 <div>
@@ -258,7 +257,7 @@
                     Clínica de la Convergencia • Sistema de Diagnóstico Transgeneracional
                 </div>
             </div>
-        </div>
+        </main>
     </div>
 
     <!-- SCRIPT DE AUTENTICACIÓN Y FIREBASE FIRESTORE -->
@@ -284,7 +283,6 @@
         let unsubscribeSnapshot = null;
 
         document.addEventListener('DOMContentLoaded', () => {
-            // Inicializar gráfico de radar
             const ctx = document.getElementById('radarChart').getContext('2d');
             myRadarChart = new Chart(ctx, {
                 type: 'radar',
@@ -315,7 +313,6 @@
                 }
             });
 
-            // Login
             document.getElementById('formLogin').addEventListener('submit', (e) => {
                 e.preventDefault();
                 const usuario = document.getElementById('loginUser').value.trim().toUpperCase();
@@ -329,8 +326,11 @@
 
                 if (usuariosValidos[usuario] && usuariosValidos[usuario] === clave) {
                     errorDiv.classList.add('hidden');
-                    document.getElementById('loginScreen').classList.add('hidden');
+                    document.getElementById('loginScreen').style.display = 'none';
                     document.getElementById('mainAppContainer').classList.remove('hidden');
+                    setTimeout(() => {
+                        if (myRadarChart) myRadarChart.update();
+                    }, 100);
                     iniciarSincronizacionFirestore();
                 } else {
                     errorDiv.classList.remove('hidden');
@@ -340,7 +340,7 @@
             document.getElementById('btnCerrarSesion').addEventListener('click', () => {
                 if (unsubscribeSnapshot) unsubscribeSnapshot();
                 document.getElementById('mainAppContainer').classList.add('hidden');
-                document.getElementById('loginScreen').classList.remove('hidden');
+                document.getElementById('loginScreen').style.display = 'flex';
                 document.getElementById('formLogin').reset();
             });
         });
@@ -402,7 +402,6 @@
             document.getElementById('txtNivelMandato').innerText = categoria.titulo;
             document.getElementById('badgeCategoria').innerText = categoria.titulo;
 
-            // Actualizar Gráfico de Radar
             myRadarChart.data.datasets[0].data = [c1, c2, c3, c4];
             myRadarChart.update();
         }
