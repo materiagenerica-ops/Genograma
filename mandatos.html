@@ -88,9 +88,9 @@
         </div>
     </div>
 
-    <!-- APLICACIÓN PRINCIPAL - RÚBRICA Y EVALUACIÓN -->
+    <!-- APLICACIÓN PRINCIPAL - MÓDULO DE MANDATOS -->
     <div id="mainAppContainer" class="hidden flex-1 flex flex-col h-screen overflow-hidden">
-        <header class="bg-slate-900 text-white shadow-md px-6 py-3 flex items-center justify-between shrink-0 z-20">
+        <header class="bg-slate-900 text-white shadow-md px-6 py-3 flex items-center justify-between shrink-0 z-25">
             <div class="flex items-center space-x-3">
                 <div class="bg-indigo-600 text-white p-2 rounded-lg shadow">
                     <i class="fa-solid fa-clipboard-check text-xl"></i>
@@ -104,7 +104,7 @@
             </div>
             <div class="flex items-center space-x-2.5 no-print">
                 <a href="index.html" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs px-3 py-2 rounded-lg font-medium transition flex items-center gap-1.5 shadow-sm">
-                    <i class="fa-solid fa-sitemap text-indigo-400"></i> Ir al Genograma
+                    <i class="fa-solid fa-sitemap text-indigo-400"></i> Volver al Genograma
                 </a>
                 <button id="btnCerrarSesion" class="bg-amber-900/40 hover:bg-amber-900/70 text-amber-200 border border-amber-800/60 text-xs px-3 py-2 rounded-lg font-medium transition flex items-center gap-1.5">
                     <i class="fa-solid fa-right-from-bracket"></i> Salir
@@ -113,7 +113,7 @@
         </header>
 
         <div class="flex-1 flex overflow-hidden">
-            <!-- PANEL IZQUIERDO: FORMULARIO Y CRITERIOS -->
+            <!-- PANEL IZQUIERDO: FORMULARIO DE CRITERIOS -->
             <div class="w-full md:w-1/2 bg-white border-r border-slate-200 flex flex-col shrink-0 overflow-y-auto p-6 space-y-6 shadow-md">
                 <div>
                     <h2 class="text-sm font-bold text-slate-900 uppercase tracking-wide flex items-center gap-2 border-b pb-2">
@@ -144,7 +144,7 @@
                     <!-- Criterio 2 -->
                     <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-3 print-card">
                         <div class="flex items-center justify-between">
-                            <h3 class="text-xs font-bold text-indigo-900 uppercase"><span class="bg-indigo-100 px-1.5 py-0.5 rounded mr-1">C2</span> Cortes y Quiebres Viculares (Cutoffs)</h3>
+                            <h3 class="text-xs font-bold text-indigo-900 uppercase"><span class="bg-indigo-100 px-1.5 py-0.5 rounded mr-1">C2</span> Cortes y Quiebres Vinculares (Cutoffs)</h3>
                             <span class="text-[10px] bg-slate-200 text-slate-700 px-2 py-0.5 rounded font-semibold">Vínculos</span>
                         </div>
                         <p class="text-[11px] text-slate-600">Presencia de líneas de quiebre o distanciamiento severo que ocultan mitos o secretos de origen.</p>
@@ -198,7 +198,7 @@
                     <!-- BOTONES DE ACCIÓN -->
                     <div class="flex items-center space-x-3 pt-2 no-print">
                         <button type="button" onclick="calcularPuntaje()" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold py-3 px-4 rounded-lg transition shadow-md flex items-center justify-center gap-2 cursor-pointer">
-                            <i class="fa-solid fa-calculator"></i> Puntuar y Graficar
+                            <i class="fa-solid fa-calculator"></i> Puntuar
                         </button>
                         <button type="button" onclick="generarInforme()" class="flex-1 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold py-3 px-4 rounded-lg transition shadow-md flex items-center justify-center gap-2 cursor-pointer">
                             <i class="fa-solid fa-file-lines"></i> Generar Informe
@@ -207,7 +207,7 @@
                 </form>
             </div>
 
-            <!-- PANEL DERECHO: RESULTADOS, GRÁFICO E INFORME -->
+            <!-- PANEL DERECHO: RESULTADOS, GRÁFICO DE RADAR E INFORME -->
             <div class="w-full md:w-1/2 bg-slate-100 overflow-y-auto p-6 space-y-6 flex flex-col justify-between">
                 <div class="space-y-6">
                     <!-- TARJETA DE PUNTAJE Y CATEGORÍA -->
@@ -284,7 +284,7 @@
         let unsubscribeSnapshot = null;
 
         document.addEventListener('DOMContentLoaded', () => {
-            // Inicializar gráfico de radar vacío
+            // Inicializar gráfico de radar
             const ctx = document.getElementById('radarChart').getContext('2d');
             myRadarChart = new Chart(ctx, {
                 type: 'radar',
@@ -402,7 +402,7 @@
             document.getElementById('txtNivelMandato').innerText = categoria.titulo;
             document.getElementById('badgeCategoria').innerText = categoria.titulo;
 
-            // Actualizar Radar
+            // Actualizar Gráfico de Radar
             myRadarChart.data.datasets[0].data = [c1, c2, c3, c4];
             myRadarChart.update();
         }
